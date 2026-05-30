@@ -29,6 +29,7 @@ export default defineConfig(() => {
           chennai: path.resolve(__dirname, 'chennai.html'),
           hyderabad: path.resolve(__dirname, 'hyderabad.html'),
           coimbatore: path.resolve(__dirname, 'coimbatore.html'),
+          admin: path.resolve(__dirname, 'admin.html'),
         },
       },
     },
