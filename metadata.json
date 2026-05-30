@@ -1,0 +1,8 @@
+{
+  "name": "Kisan Shuttering & Scaffolding",
+  "description": "Premium Shuttering and Scaffolding Material on Rent across India, including Gurgaon, Noida, Bangalore, Chennai, Hyderabad, and Coimbatore. High-quality construction support materials, fast shipping and same-day delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

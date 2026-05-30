@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kisan Shuttering & Scaffolding - GitHub Hosting Guide</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #111;
+      border-bottom: 2px solid #FFC107;
+      padding-bottom: 10px;
+      margin-bottom: 5px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #222;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 5px;
+      margin-top: 30px;
+    }
+    h3 {
+      font-size: 1.15rem;
+      color: #333;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    pre {
+      background-color: #1e1e1e;
+      color: #f4f4f4;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    ul, ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .badge {
+      background-color: #FFC107;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .tip {
+      background-color: #fff9e6;
+      border-left: 4px solid #FFC107;
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+    .print-btn {
+      display: block;
+      width: fit-content;
+      background-color: #FFC107;
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 12px 24px;
+      border-radius: 6px;
+      margin: 20px 0;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    @media print {
+      .print-btn {
+        display: none;
+      }
+      body {
+        margin: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <span class="badge">Professional Guide</span>
+    <h1>Kisan Shuttering & Scaffolding</h1>
+    <p style="color: #666; font-size: 1.1rem; margin-top: 5px;">Step-by-Step GitHub Pages Hosting & PDF Conversion Guide</p>
+    
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 20px 0;">
+      <button class="print-btn" style="margin: 0;" onclick="window.print()">Print or Save as PDF Guide 📄</button>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 Quick Tip:</strong> Click the <strong>Print or Save as PDF Guide</strong> button to save this hosting guide locally as a clean, styled PDF! Use the <strong>Export to ZIP</strong> option in the Google AI Studio menu to download the clean compiler-optimized files.
+  </div>
+
+  <h2>1. Export Your Code from Google AI Studio</h2>
+  <ol>
+    <li>In the Google AI Studio environment, look at the top-right toolbar.</li>
+    <li>Click the <strong>Settings</strong> cog or the export button in the sidebar.</li>
+    <li>Select <strong>Export Code as ZIP</strong> to package your workspace.</li>
+    <li>Once downloaded, extract the ZIP file into a folder on your machine (e.g. <code>kisan-website</code>).</li>
+  </ol>
+
+  <h2>2. Create a Free Repository on GitHub</h2>
+  <ol>
+    <li>Log in to <a href="https://github.com" target="_blank">github.com</a>.</li>
+    <li>Click the <b>New</b> button (or <b>+</b> in the header) to create a new repository.</li>
+    <li>Name your repository <code>kisan-shuttering</code>.</li>
+    <li>Set it to <b>Public</b> (required for free web hosting).</li>
+    <li><strong>Leave all default initialization boxes unchecked</strong> (No README, .gitignore, etc., as they are pre-configured in your code).</li>
+    <li>Click <b>Create repository</b>.</li>
+  </ol>
+
+  <h2>3. Automated Deployment to GitHub Pages (Actions)</h2>
+  <p>Because your website uses Vite & Tailwind, it needs to be compiled before it runs in production. I have already fully configured a premium, automated CI/CD pipeline for you! The folder <code>.github/workflows/deploy.yml</code> has already been created in your project with the following contents:</p>
+
+  <pre><code>name: Deploy Kisan Shuttering Website to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Production Bundle
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4</code></pre>
+
+  <h2>4. Upload and Push</h2>
+  <p>Open your local terminal in the extracted folder folder, and run these commands to linked files to GitHub:</p>
+  
+  <pre><code># Initialize git
+git init
+
+# Add all project source files
+git add .
+
+# Save snapshot
+git commit -m "Launch Kisan Web Application"
+
+# Rename local branch
+git branch -M main
+
+# Link to your new GitHub repository
+git remote add origin https://github.com/YOUR_USERNAME/kisan-shuttering.git
+
+# Push repository files (Replace YOUR_USERNAME)
+git push -u origin main --force</code></pre>
+
+  <h2>5. Select Delivery Source</h2>
+  <ol>
+    <li>Go to your GitHub online repository.</li>
+    <li>Click the <strong>Settings</strong> tab and open <strong>Pages</strong> in the sidebar.</li>
+    <li>In <b>Build and Deployment</b> -> <b>Source</b>, change the dropdown selection to <strong>GitHub Actions</strong>.</li>
+    <li>Your site will now build in parallel and deploy to your custom public link: <code>https://YOUR_USERNAME.github.io/kisan-shuttering/</code></li>
+  </ol>
+</body>
+</html>
