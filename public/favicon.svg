@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Outer sharp-cornered square boundary with precise frame thickstroke -->
+  <rect x="10" y="10" width="80" height="80" fill="none" stroke="#121212" stroke-width="4.5" />
+  
+  <!-- Left solid horizontal pillar, shorter elevation -->
+  <rect x="33" y="49" width="13.2" height="29" fill="#121212" />
+  
+  <!-- Right solid horizontal pillar, taller elevation with same thickness -->
+  <rect x="53.5" y="31.5" width="13.2" height="46.5" fill="#121212" />
+</svg>
