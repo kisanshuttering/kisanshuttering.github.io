@@ -254,6 +254,19 @@ app.get("/sitemap.xml", (req, res) => {
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    // Development middleware for clean URLs (without .html)
+    app.get("/:page", (req, res, next) => {
+      if (req.params.page.includes('.') || req.params.page.startsWith('api')) {
+        return next();
+      }
+      const pagePath = path.join(process.cwd(), `${req.params.page}.html`);
+      if (fs.existsSync(pagePath)) {
+        res.sendFile(pagePath);
+      } else {
+        next();
+      }
+    });
+
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa"
@@ -261,6 +274,20 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    
+    // Serve HTML files properly without extension
+    app.get("/:page", (req, res, next) => {
+      if (req.params.page.includes('.') || req.params.page.startsWith('api')) {
+        return next();
+      }
+      const pagePath = path.join(distPath, `${req.params.page}.html`);
+      if (fs.existsSync(pagePath)) {
+        res.sendFile(pagePath);
+      } else {
+        next();
+      }
+    });
+
     app.use(express.static(distPath));
     // Serve HTML files properly
     app.get("/:page.html", (req, res, next) => {
