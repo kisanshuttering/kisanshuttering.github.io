@@ -26,6 +26,7 @@ export default defineConfig(() => {
           'scaffolding-rental-gurgaon': path.resolve(__dirname, 'scaffolding-rental-gurgaon.html'),
           'scaffolding-rental-noida': path.resolve(__dirname, 'scaffolding-rental-noida.html'),
           'scaffolding-rental-farukhnagar': path.resolve(__dirname, 'scaffolding-rental-farukhnagar.html'),
+          'scaffolding-rental-sohna': path.resolve(__dirname, 'scaffolding-rental-sohna.html'),
           'scaffolding-rental-jaipur': path.resolve(__dirname, 'scaffolding-rental-jaipur.html'),
           'scaffolding-rental-kota': path.resolve(__dirname, 'scaffolding-rental-kota.html'),
           blog: path.resolve(__dirname, 'blog.html'),
