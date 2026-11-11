@@ -5,7 +5,26 @@ import { createServer as createViteServer } from "vite";
 import PDFDocument from "pdfkit";
 
 const app = express();
-const PORT = 3000;
+
+function getPort(): number {
+  const portIndex = process.argv.indexOf("--port");
+  if (portIndex !== -1 && process.argv[portIndex + 1]) {
+    const parsed = parseInt(process.argv[portIndex + 1], 10);
+    if (!isNaN(parsed)) return parsed;
+  }
+  return process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+}
+
+function getHost(): string {
+  const hostIndex = process.argv.indexOf("--host");
+  if (hostIndex !== -1 && process.argv[hostIndex + 1]) {
+    return process.argv[hostIndex + 1];
+  }
+  return process.env.HOST || "0.0.0.0";
+}
+
+const PORT = getPort();
+const HOST = getHost();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -254,6 +273,16 @@ app.get("/sitemap.xml", (req, res) => {
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    // Development route for .html files
+    app.get("/:page.html", (req, res, next) => {
+      const pagePath = path.join(process.cwd(), `${req.params.page}.html`);
+      if (fs.existsSync(pagePath)) {
+        res.sendFile(pagePath);
+      } else {
+        next();
+      }
+    });
+
     // Development middleware for clean URLs (without .html)
     app.get("/:page", (req, res, next) => {
       if (req.params.page.includes('.') || req.params.page.startsWith('api')) {
@@ -303,8 +332,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running at http://0.0.0.0:${PORT}`);
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`Server running at http://${HOST}:${PORT}`);
+  });
+
+  server.on("error", (err: any) => {
+    console.error("Server listen error:", err);
   });
 }
 
