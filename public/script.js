@@ -208,10 +208,10 @@ function showSuccessPopup(lead) {
       <div class="bg-black/40 rounded-lg p-4 mb-6 text-left border border-white/5 space-y-2 text-xs font-mono">
         <div class="flex justify-between text-gray-400"><span>Lead ID:</span> <span class="text-white">${lead.id}</span></div>
         <div class="flex justify-between text-gray-400"><span>Mobile:</span> <span class="text-white">+91 ${lead.mobile}</span></div>
-        <div class="flex justify-between text-gray-400"><span>Delivery Queue:</span> <span class="text-[#FFC107]">Prompt Priority Dispatch</span></div>
+        <div class="flex justify-between text-gray-400"><span>Delivery Queue:</span> <span class="text-[#FFC107]">Scheduled Yard Dispatch</span></div>
       </div>
       
-      <p class="text-xs text-gray-400 mb-6">Our coordinator will connect with you on +91 ${lead.mobile} within 15 minutes to share direct pricing.</p>
+      <p class="text-xs text-gray-400 mb-6">Our coordinator will connect with you on +91 ${lead.mobile} shortly to discuss stock availability and share a project quotation.</p>
       
       <button class="w-full bg-[#FFC107] text-black font-semibold py-3 px-6 rounded-lg hover:bg-[#E0A800] transition duration-200 uppercase tracking-wider text-sm outline-none" id="close-success-btn">
         Back to Site
@@ -300,7 +300,7 @@ function openQuoteModal(prefillMaterial = '') {
         </div>
 
         <p class="text-xs text-gray-400 leading-relaxed font-sans">
-          To receive instant rates, share details of your layout/sizes, or inspect inventory stocks - connect directly through our official hotlines below.
+          To request current rental quotations, share details of your layout/sizes, or arrange a yard inspection - connect directly through our official hotlines below.
         </p>
 
         <div class="space-y-3 pt-1">
@@ -313,7 +313,7 @@ function openQuoteModal(prefillMaterial = '') {
                 </svg>
               </div>
               <div class="text-left">
-                <span class="block text-[9px] uppercase font-bold tracking-wider text-[#FFC107] font-mono leading-none">Immediate Connection</span>
+                <span class="block text-[9px] uppercase font-bold tracking-wider text-[#FFC107] font-mono leading-none">Direct Coordinator</span>
                 <span class="text-sm font-extrabold text-white group-hover:text-[#FFC107] transition duration-200">+91 79888 62842</span>
               </div>
             </div>
