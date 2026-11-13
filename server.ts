@@ -255,6 +255,11 @@ app.get("/robots.txt", (req, res) => {
   }
 });
 
+// Canonicalize /index.html to /
+app.get("/index.html", (_req, res) => {
+  res.redirect(301, "/");
+});
+
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
@@ -302,7 +307,31 @@ async function startServer() {
       }
     });
 
-    app.use(express.static(distPath));
+    app.use(
+      "/assets",
+      express.static(path.join(distPath, "assets"), {
+        maxAge: "1y",
+        immutable: true,
+      })
+    );
+    app.use(
+      express.static(distPath, {
+        setHeaders: (res, filePath) => {
+          if (
+            filePath.endsWith(".css") ||
+            filePath.endsWith(".js") ||
+            filePath.endsWith(".svg") ||
+            filePath.endsWith(".png") ||
+            filePath.endsWith(".jpg") ||
+            filePath.endsWith(".webp")
+          ) {
+            res.setHeader("Cache-Control", "public, max-age=2592000");
+          } else if (filePath.endsWith(".html")) {
+            res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+          }
+        },
+      })
+    );
     // Serve HTML files properly
     app.get("/:page.html", (req, res, next) => {
       const pagePath = path.join(distPath, `${req.params.page}.html`);

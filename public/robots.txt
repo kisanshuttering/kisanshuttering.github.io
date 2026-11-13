@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /api/
 
-Sitemap: https://kisanshuttering.com/sitemap.xml
+Sitemap: https://www.kisanshuttering.com/sitemap.xml
