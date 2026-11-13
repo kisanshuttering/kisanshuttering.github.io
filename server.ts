@@ -255,9 +255,44 @@ app.get("/robots.txt", (req, res) => {
   }
 });
 
-// Canonicalize /index.html to /
-app.get("/index.html", (_req, res) => {
+// Enforce canonical www host when served behind apex domain directly
+app.use((req, res, next) => {
+  const hostHeader = (req.headers.host || "").split(":")[0].toLowerCase();
+  if (hostHeader === "kisanshuttering.com") {
+    return res.redirect(301, `https://www.kisanshuttering.com${req.originalUrl}`);
+  }
+  next();
+});
+
+// Canonicalize /index.html and /index to /
+app.get(["/index.html", "/index"], (_req, res) => {
   res.redirect(301, "/");
+});
+
+// Relevant legacy WordPress / category / archive redirects (never blindly redirect unrelated URLs to /)
+app.get(["/blog", "/blog/", "/category/*", "/tag/*", "/feed", "/feed/"], (_req, res) => {
+  res.redirect(301, "/blog.html");
+});
+app.get(["/products/*", "/shuttering/*", "/scaffolding/*", "/materials", "/materials/"], (_req, res) => {
+  res.redirect(301, "/materials.html");
+});
+app.get(["/gurgaon", "/gurgaon/", "/gurugram", "/gurugram/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-gurgaon.html");
+});
+app.get(["/noida", "/noida/", "/greater-noida", "/greater-noida/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-noida.html");
+});
+app.get(["/farukhnagar", "/farukhnagar/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-farukhnagar.html");
+});
+app.get(["/sohna", "/sohna/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-sohna.html");
+});
+app.get(["/jaipur", "/jaipur/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-jaipur.html");
+});
+app.get(["/kota", "/kota/"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-kota.html");
 });
 
 // Setup Vite or Static File Serving
@@ -273,17 +308,16 @@ async function startServer() {
       }
     });
 
-    // Development middleware for clean URLs (without .html)
+    // Redirect clean extensionless URLs to canonical .html routes (preventing duplicate URLs)
     app.get("/:page", (req, res, next) => {
       if (req.params.page.includes('.') || req.params.page.startsWith('api')) {
         return next();
       }
       const pagePath = path.join(process.cwd(), `${req.params.page}.html`);
       if (fs.existsSync(pagePath)) {
-        res.sendFile(pagePath);
-      } else {
-        next();
+        return res.redirect(301, `/${req.params.page}.html`);
       }
+      next();
     });
 
     const vite = await createViteServer({
@@ -294,17 +328,16 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     
-    // Serve HTML files properly without extension
+    // Redirect clean extensionless URLs to canonical .html routes (preventing duplicate URLs)
     app.get("/:page", (req, res, next) => {
       if (req.params.page.includes('.') || req.params.page.startsWith('api')) {
         return next();
       }
       const pagePath = path.join(distPath, `${req.params.page}.html`);
       if (fs.existsSync(pagePath)) {
-        res.sendFile(pagePath);
-      } else {
-        next();
+        return res.redirect(301, `/${req.params.page}.html`);
       }
+      next();
     });
 
     app.use(
@@ -341,8 +374,10 @@ async function startServer() {
         next();
       }
     });
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+    // Return 404 for unknown / unrelated URLs instead of serving homepage HTML as soft-404
+    app.get("*", (_req, res) => {
+      res.setHeader("X-Robots-Tag", "noindex, nofollow");
+      res.status(404).send(`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="robots" content="noindex, nofollow"><title>404 Page Not Found | Kisan Shuttering</title></head><body style="font-family:sans-serif;padding:3rem;text-align:center"><h1>404 - Page Not Found</h1><p>The requested URL was not found on Kisan Shuttering &amp; Scaffolding.</p><p><a href="/">Go to Homepage</a> | <a href="/materials.html">Materials &amp; Specs</a> | <a href="/blog.html">Blog</a></p></body></html>`);
     });
   }
 
