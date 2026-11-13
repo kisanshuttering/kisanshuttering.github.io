@@ -208,7 +208,7 @@ function showSuccessPopup(lead) {
       <div class="bg-black/40 rounded-lg p-4 mb-6 text-left border border-white/5 space-y-2 text-xs font-mono">
         <div class="flex justify-between text-gray-400"><span>Lead ID:</span> <span class="text-white">${lead.id}</span></div>
         <div class="flex justify-between text-gray-400"><span>Mobile:</span> <span class="text-white">+91 ${lead.mobile}</span></div>
-        <div class="flex justify-between text-gray-400"><span>Delivery Queue:</span> <span class="text-[#FFC107]">Same-Day Priority</span></div>
+        <div class="flex justify-between text-gray-400"><span>Delivery Queue:</span> <span class="text-[#FFC107]">Prompt Priority Dispatch</span></div>
       </div>
       
       <p class="text-xs text-gray-400 mb-6">Our coordinator will connect with you on +91 ${lead.mobile} within 15 minutes to share direct pricing.</p>
