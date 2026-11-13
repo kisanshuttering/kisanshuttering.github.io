@@ -240,6 +240,21 @@ app.get("/sitemap.xml", (req, res) => {
   }
 });
 
+// Serve robots.txt cleanly in both dev and production
+app.get("/robots.txt", (req, res) => {
+  const distRobots = path.join(process.cwd(), "dist", "robots.txt");
+  const publicRobots = path.join(process.cwd(), "public", "robots.txt");
+  const robotsPath = process.env.NODE_ENV === "production" && fs.existsSync(distRobots)
+    ? distRobots
+    : publicRobots;
+  if (fs.existsSync(robotsPath)) {
+    res.setHeader("Content-Type", "text/plain");
+    res.sendFile(robotsPath);
+  } else {
+    res.status(404).end();
+  }
+});
+
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
