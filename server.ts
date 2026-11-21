@@ -328,22 +328,35 @@ app.use((req, res, next) => {
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
-    app.get("/rental-scaffolding-in-palwal/", (_req, res, next) => {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa"
+    });
+
+    app.get("/rental-scaffolding-in-palwal/", async (req, res, next) => {
       const palwalPath = path.join(process.cwd(), "rental-scaffolding-in-palwal", "index.html");
-      if (fs.existsSync(palwalPath)) {
-        res.sendFile(palwalPath);
-      } else {
-        next();
+      if (!fs.existsSync(palwalPath)) return next();
+      try {
+        const raw = fs.readFileSync(palwalPath, "utf-8");
+        const html = await vite.transformIndexHtml(req.originalUrl, raw);
+        res.status(200).set({ "Content-Type": "text/html" }).end(html);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
       }
     });
 
     // Development route for .html files
-    app.get("/:page.html", (req, res, next) => {
+    app.get("/:page.html", async (req, res, next) => {
       const pagePath = path.join(process.cwd(), `${req.params.page}.html`);
-      if (fs.existsSync(pagePath)) {
-        res.sendFile(pagePath);
-      } else {
-        next();
+      if (!fs.existsSync(pagePath)) return next();
+      try {
+        const raw = fs.readFileSync(pagePath, "utf-8");
+        const html = await vite.transformIndexHtml(req.originalUrl, raw);
+        res.status(200).set({ "Content-Type": "text/html" }).end(html);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
       }
     });
 
@@ -359,10 +372,6 @@ async function startServer() {
       next();
     });
 
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa"
-    });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
