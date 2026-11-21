@@ -255,18 +255,22 @@ app.get("/robots.txt", (req, res) => {
   }
 });
 
-// Enforce canonical www host when served behind apex domain directly
+// Enforce canonical www host and single-hop /index.html -> / canonicalization
 app.use((req, res, next) => {
   const hostHeader = (req.headers.host || "").split(":")[0].toLowerCase();
-  if (hostHeader === "kisanshuttering.com") {
-    return res.redirect(301, `https://www.kisanshuttering.com${req.originalUrl}`);
+  const isApex = hostHeader === "kisanshuttering.com";
+  const isIndexAlias = req.path === "/index.html" || req.path === "/index";
+  const qsIndex = req.originalUrl.indexOf("?");
+  const qs = qsIndex !== -1 ? req.originalUrl.slice(qsIndex) : "";
+
+  if (isApex) {
+    const targetPath = isIndexAlias ? `/${qs}` : req.originalUrl;
+    return res.redirect(301, `https://www.kisanshuttering.com${targetPath}`);
+  }
+  if (isIndexAlias) {
+    return res.redirect(301, `/${qs}`);
   }
   next();
-});
-
-// Canonicalize /index.html and /index to /
-app.get(["/index.html", "/index"], (_req, res) => {
-  res.redirect(301, "/");
 });
 
 // Relevant legacy WordPress / category / archive redirects (never blindly redirect unrelated URLs to /)
@@ -295,9 +299,44 @@ app.get(["/kota", "/kota/"], (_req, res) => {
   res.redirect(301, "/scaffolding-rental-kota.html");
 });
 
+// 301 redirects for the 3 duplicate / legacy URL variants to their canonical primary URLs
+app.get(["/coimbatore", "/coimbatore/", "/coimbatore.html"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-coimbatore.html");
+});
+app.get(["/scaffolding-in-chennai", "/scaffolding-in-chennai/", "/scaffolding-in-chennai/index.html"], (_req, res) => {
+  res.redirect(301, "/scaffolding-rental-chennai.html");
+});
+app.get(
+  [
+    "/scaffolding-rental-services-vijayawada",
+    "/scaffolding-rental-services-vijayawada/",
+    "/scaffolding-rental-services-vijayawada/index.html",
+  ],
+  (_req, res) => {
+    res.redirect(301, "/scaffolding-rental-vijayawada.html");
+  }
+);
+
+// Canonical trailing-slash handling for /rental-scaffolding-in-palwal/ without matching /rental-scaffolding-in-palwal/ itself
+app.use((req, res, next) => {
+  if (req.path === "/rental-scaffolding-in-palwal" || req.path === "/rental-scaffolding-in-palwal/index.html") {
+    return res.redirect(301, "/rental-scaffolding-in-palwal/");
+  }
+  next();
+});
+
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    app.get("/rental-scaffolding-in-palwal/", (_req, res, next) => {
+      const palwalPath = path.join(process.cwd(), "rental-scaffolding-in-palwal", "index.html");
+      if (fs.existsSync(palwalPath)) {
+        res.sendFile(palwalPath);
+      } else {
+        next();
+      }
+    });
+
     // Development route for .html files
     app.get("/:page.html", (req, res, next) => {
       const pagePath = path.join(process.cwd(), `${req.params.page}.html`);

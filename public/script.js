@@ -271,9 +271,12 @@ function openQuoteModal(prefillMaterial = '') {
     materialDisplay = 'Anti-Skid Walkway Planks / MS Challi';
   }
 
-  let currentCityForPre = window.location.pathname.split('/').pop().replace('.html', '');
+  const cleanPath = window.location.pathname.replace(/\/+$/, '');
+  let currentCityForPre = cleanPath.split('/').pop().replace('.html', '');
   if (currentCityForPre.startsWith('scaffolding-rental-')) {
     currentCityForPre = currentCityForPre.replace('scaffolding-rental-', '');
+  } else if (currentCityForPre.startsWith('rental-scaffolding-in-')) {
+    currentCityForPre = currentCityForPre.replace('rental-scaffolding-in-', '');
   }
   const activeCity = currentCityForPre && currentCityForPre !== 'index' ? currentCityForPre.charAt(0).toUpperCase() + currentCityForPre.slice(1) : '';
   const citySuffix = activeCity ? ` under ${activeCity} region` : '';
