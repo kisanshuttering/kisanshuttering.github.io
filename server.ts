@@ -395,16 +395,25 @@ async function startServer() {
       next();
     });
 
-    // Ensure direct stylesheet requests always receive text/css even if a proxy alters Accept headers
-    app.use((req, _res, next) => {
-      if (
-        req.path.endsWith(".css") &&
-        !req.originalUrl.includes("?import") &&
-        !(req.headers.accept || "").includes("text/css")
-      ) {
-        req.headers.accept = "text/css,*/*;q=0.1";
+    // Serve compiled CSS directly as text/css in dev mode to avoid Accept-header MIME negotiation or stale cache issues
+    app.get("*.css", async (req, res, next) => {
+      if (req.originalUrl.includes("?import")) return next();
+      const relPath = req.path.replace(/^\/+/, "");
+      if (!fs.existsSync(path.join(process.cwd(), relPath))) return next();
+      try {
+        const result = await vite.transformRequest(`${req.path}?direct`);
+        if (!result) return next();
+        res
+          .status(200)
+          .set({
+            "Content-Type": "text/css; charset=utf-8",
+            "Cache-Control": "no-store",
+          })
+          .end(result.code);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
       }
-      next();
     });
 
     app.use(vite.middlewares);
