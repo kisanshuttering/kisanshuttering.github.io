@@ -399,6 +399,14 @@ async function startServer() {
     app.get("*.css", async (req, res, next) => {
       if (req.originalUrl.includes("?import")) return next();
       const relPath = req.path.replace(/^\/+/, "");
+      const publicCssPath = path.join(process.cwd(), "public", relPath);
+      if (fs.existsSync(publicCssPath)) {
+        res.set({
+          "Content-Type": "text/css; charset=utf-8",
+          "Cache-Control": "no-store",
+        });
+        return res.sendFile(publicCssPath);
+      }
       if (!fs.existsSync(path.join(process.cwd(), relPath))) return next();
       try {
         const result = await vite.transformRequest(`${req.path}?direct`);
