@@ -351,6 +351,7 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: false,
+        allowedHosts: true,
       },
       appType: "spa",
     });
@@ -390,6 +391,18 @@ async function startServer() {
       const pagePath = path.join(process.cwd(), `${req.params.page}.html`);
       if (fs.existsSync(pagePath)) {
         return res.redirect(301, `/${req.params.page}.html`);
+      }
+      next();
+    });
+
+    // Ensure direct stylesheet requests always receive text/css even if a proxy alters Accept headers
+    app.use((req, _res, next) => {
+      if (
+        req.path.endsWith(".css") &&
+        !req.originalUrl.includes("?import") &&
+        !(req.headers.accept || "").includes("text/css")
+      ) {
+        req.headers.accept = "text/css,*/*;q=0.1";
       }
       next();
     });

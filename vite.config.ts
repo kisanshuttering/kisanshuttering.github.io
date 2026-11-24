@@ -16,6 +16,7 @@ export default defineConfig(() => {
       port: 3000,
       host: '0.0.0.0',
       hmr: false,
+      allowedHosts: true as const,
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
     build: {
