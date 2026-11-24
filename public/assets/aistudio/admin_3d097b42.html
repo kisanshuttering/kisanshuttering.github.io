@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <title>Admin Dashboard & Google Forms Connector - Kisan Shuttering</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://scripts.seorce.com/api?projectId=6a5ed0d9fbe0e2a12812f96d" defer data-uuid="6a5ed0d9fbe0e2a12812f96d"></script>
+  </head>
+  <body class="bg-[#121212] text-white font-sans antialiased selection:bg-[#FFC107] selection:text-[#121212]">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-white/10 bg-[#1E1E1E]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+          <div class="flex items-center">
+            <a href="/" class="flex items-center space-x-3">
+              <div>
+                <span class="text-white font-bold font-sans tracking-tight text-lg block leading-none">Kisan Shuttering</span>
+                <span class="text-[#FFC107] text-[10px] tracking-wider uppercase block font-medium mt-0.5">Admin Management Terminal</span>
+              </div>
+            </a>
+          </div>
+          <nav class="flex items-center space-x-4">
+            <a href="/" class="text-gray-400 hover:text-white transition duration-200 text-sm font-semibold">← Back to Site</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      
+      <!-- Top Overview Dashboard Info -->
+      <div class="bg-gradient-to-r from-[#1E1E1E] to-[#252525] rounded-2xl p-8 border border-white/10 relative overflow-hidden">
+        <div class="absolute top-0 right-0 h-40 w-40 bg-[#FFC107]/5 rounded-full blur-3xl"></div>
+        <div class="relative z-10 space-y-2">
+          <span class="text-xs text-[#FFC107] font-mono tracking-widest uppercase block">Kisan Leads Control Panel</span>
+          <h1 class="text-3xl font-extrabold tracking-tight font-sans text-white">Inquiries Management Terminal</h1>
+          <p class="text-gray-400 max-w-2xl text-sm">
+            Monitor and manage raw digital inquiries from all landing pages and contact widgets. Review customer project requirements, sizes, and locations in real-time.
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Layout -->
+      <div class="w-full space-y-6">
+        
+        <!-- Leads Table Log -->
+        <div class="bg-[#1E1E1E] rounded-xl border border-white/5 p-6 space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-white/10">
+            <div>
+              <h2 class="font-sans font-bold text-lg text-white">Live Inquiries Log</h2>
+              <p class="text-xs text-gray-400">Leads captured across all pages of Kisan Shuttering</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button id="btn-clear-leads" class="text-red-400 hover:text-red-500 text-xs font-semibold py-1.5 px-3 border border-red-400/20 rounded transition cursor-pointer">
+                Clear Leads Log
+              </button>
+              <button id="btn-refresh-leads" class="text-[#FFC107] hover:text-yellow-400 text-xs font-semibold py-1.5 px-3 border border-[#FFC107]/20 rounded transition cursor-pointer">
+                Refresh Live
+              </button>
+            </div>
+          </div>
+
+          <!-- Leads Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-300">
+              <thead class="text-xs uppercase bg-black/40 text-gray-400 font-mono">
+                <tr>
+                  <th class="px-4 py-3">Lead Details</th>
+                  <th class="px-4 py-3">Project Requirements</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-body">
+                <tr>
+                  <td colspan="3" class="text-center py-8 text-gray-500">Checking local inquiries...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="no-leads" class="hidden text-center py-10 space-y-3">
+            <div class="text-gray-500">No leads captured yet. Try submitting a form on the main pages!</div>
+          </div>
+        </div>
+        
+      </div>
+    </main>
+
+    <!-- UI controller logic script for Admin -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        loadLeadsList();
+
+        document.getElementById("btn-refresh-leads").addEventListener("click", loadLeadsList);
+        document.getElementById("btn-clear-leads").addEventListener("click", clearLeadsLog);
+      });
+
+      async function loadLeadsList() {
+        const tbody = document.getElementById("leads-body");
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-gray-500">Retrieving real-time database elements...</td></tr>`;
+
+        try {
+          const res = await fetch("/api/leads");
+          const leads = await res.json();
+
+          if (!leads || leads.length === 0) {
+            tbody.innerHTML = "";
+            document.getElementById("no-leads").classList.remove("hidden");
+            return;
+          }
+
+          document.getElementById("no-leads").classList.add("hidden");
+          tbody.innerHTML = "";
+
+          leads.forEach(lead => {
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-white/5 hover:bg-white/5 transition duration-150";
+
+            tr.innerHTML = `
+              <td class="px-4 py-4 space-y-1">
+                <div class="font-sans font-bold text-white text-base">${lead.name}</div>
+                <div class="text-xs text-[#FFC107] font-semibold">${lead.company || "N/A"}</div>
+                <div class="text-xs text-gray-400 flex items-center gap-1">
+                  <span>📱 +91 ${lead.mobile}</span>
+                  <span class="text-gray-600">|</span>
+                  <span>📍 ${lead.city || "N/A"}</span>
+                </div>
+              </td>
+              <td class="px-4 py-4 space-y-1 text-xs">
+                <div class="text-white font-medium">${lead.material || "N/A"}</div>
+                <div class="text-gray-400">Project Size: <span class="text-white">${lead.size || 'N/A'}</span></div>
+                <div class="text-gray-500 text-[11px] leading-relaxed max-w-xs truncate" title="${lead.message || ''}">${lead.message || 'No additional project notes.'}</div>
+                <div class="text-[10px] text-gray-500 mt-1 font-mono">${lead.date || ''}</div>
+              </td>
+              <td class="px-4 py-4 text-right">
+                <button onclick="deleteLead('${lead.id}')" class="text-red-400 hover:text-red-500 text-xs font-semibold py-1 px-2 border border-red-400/10 rounded transition cursor-pointer">
+                  Delete
+                </button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (e) {
+          tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-red-400">Failed to load leads list from database.</td></tr>`;
+        }
+      }
+
+      async function deleteLead(leadId) {
+        if (!confirm("Are you sure you want to permanently delete this lead inquiry from database?")) return;
+        try {
+          const res = await fetch(`/api/leads/${leadId}`, { method: "DELETE" });
+          if (res.ok) {
+            loadLeadsList();
+          }
+        } catch (e) {
+          alert("Error deleting lead inquiry.");
+        }
+      }
+
+      async function clearLeadsLog() {
+        if (!confirm("CRITICAL ACTION: Are you sure you want to permanently clear ALL inquiries from the local database? This cannot be undone.")) return;
+        try {
+          const res = await fetch("/api/leads/clear", { method: "POST" });
+          if (res.ok) {
+            loadLeadsList();
+          }
+        } catch (e) {
+          alert("Error clearing leads database.");
+        }
+      }
+    </script>
+  </body>
+</html>

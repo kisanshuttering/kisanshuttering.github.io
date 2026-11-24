@@ -6,21 +6,40 @@ import PDFDocument from "pdfkit";
 
 const app = express();
 
+function getArgValue(name: string): string | undefined {
+  const flag = `--${name}`;
+  const eqPrefix = `${flag}=`;
+  for (let i = 0; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    if (arg === flag && process.argv[i + 1]) {
+      return process.argv[i + 1];
+    }
+    if (arg.startsWith(eqPrefix)) {
+      return arg.slice(eqPrefix.length);
+    }
+  }
+  return undefined;
+}
+
 function getPort(): number {
-  const portIndex = process.argv.indexOf("--port");
-  if (portIndex !== -1 && process.argv[portIndex + 1]) {
-    const parsed = parseInt(process.argv[portIndex + 1], 10);
+  const cliPort = getArgValue("port");
+  if (cliPort) {
+    const parsed = parseInt(cliPort, 10);
     if (!isNaN(parsed)) return parsed;
   }
-  return process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  if (process.env.NODE_ENV === "production" && process.env.PORT) {
+    const parsed = parseInt(process.env.PORT, 10);
+    if (!isNaN(parsed)) return parsed;
+  }
+  if (process.env.PORT && process.env.PORT !== process.env.NGINX_PORT) {
+    const parsed = parseInt(process.env.PORT, 10);
+    if (!isNaN(parsed)) return parsed;
+  }
+  return process.env.DEFAULT_APP_PORT ? parseInt(process.env.DEFAULT_APP_PORT, 10) || 3000 : 3000;
 }
 
 function getHost(): string {
-  const hostIndex = process.argv.indexOf("--host");
-  if (hostIndex !== -1 && process.argv[hostIndex + 1]) {
-    return process.argv[hostIndex + 1];
-  }
-  return process.env.HOST || "0.0.0.0";
+  return getArgValue("host") || process.env.HOST || "0.0.0.0";
 }
 
 const PORT = getPort();
@@ -135,43 +154,43 @@ app.get("/api/download-meta-pdf", (req, res) => {
     const proposedMetas = [
       {
         page: "Home Page (index.html)",
-        current: "Rent heavy-duty shuttering plates, Cuplock scaffolding, prop jacks & spans in Gurgaon, Noida, Farukhnagar, Sohna, Jaipur & Kota. Bulk rental & prompt delivery.",
-        proposed: "Rent heavy-duty shuttering plates, Cuplock scaffolding, prop jacks, and adjustable spans. Large Inventory Available for Bulk Rental across NCR and Rajasthan. Call +91 7988862842."
+        current: "Rent shuttering plates, Cuplock scaffolding, prop jacks & spans in Gurgaon, Noida, Farukhnagar, Sohna, Jaipur & Kota. Coordinated supply & rental quotes.",
+        proposed: "Rent shuttering plates, Cuplock scaffolding, prop jacks & adjustable spans across Gurgaon, Noida, Farukhnagar, Sohna, Jaipur & Kota. Call +91 7988862842."
       },
       {
         page: "Materials & Specifications (materials.html)",
-        current: "Explore heavy-duty shuttering plates, Cuplock scaffolding, prop jacks, spans, and formwork accessories on rent. Technical specifications and direct yard rates.",
-        proposed: "Heavy-duty construction materials on rent. Specifications for MS plates, Cuplock scaffolding, telescopic prop jacks & slab spans. Call +91 7988862842."
+        current: "Explore shuttering plates, Cuplock scaffolding, prop jacks, spans, MS Challi & formwork accessories on rent. Verified sizes and enquiry desk.",
+        proposed: "Explore MS shuttering plates, Cuplock scaffolding, prop jacks, Acrow spans & MS Challi on rent. Verified sizes & rental quotes: +91 7988862842."
       },
       {
-        page: "Gurgaon Hub (scaffolding-rental-gurgaon.html)",
-        current: "Rent heavy-duty scaffolding and shuttering material in Gurgaon at direct yard rates. Prompt site delivery across Golf Course Rd, Sohna Rd & Cyber City.",
-        proposed: "Rent modular scaffolding systems, prop jacks, and steel shuttering plates in Gurgaon (NCR). Direct yard rates and prompt site dispatch. Call +91 7988862842."
+        page: "Gurgaon Rental Guide (scaffolding-rental-gurgaon.html)",
+        current: "Rent scaffolding and shuttering material in Gurgaon with coordinated main-yard dispatch across Golf Course Rd, Sohna Rd, DLF phases & IMT Manesar.",
+        proposed: "Rent Cuplock scaffolding, prop jacks & steel shuttering plates for Gurgaon (NCR) sites. Coordinated main-yard dispatch. Call +91 7988862842."
       },
       {
-        page: "Noida Hub (scaffolding-rental-noida.html)",
-        current: "Rent heavy-duty scaffolding and shuttering material in Noida & Greater Noida at direct yard rates. Prompt site delivery to Sec 62, Sec 150 & Noida Extension.",
-        proposed: "Rent heavy-duty shuttering plates and Cuplock scaffolding in Noida & Greater Noida. Prompt site delivery across all active project sectors. Call +91 7988862842."
+        page: "Noida Rental Guide (scaffolding-rental-noida.html)",
+        current: "Rent scaffolding and shuttering material in Noida & Greater Noida with coordinated main-yard dispatch to Sector 62, Sector 150 & Noida Extension.",
+        proposed: "Rent shuttering plates & Cuplock scaffolding in Noida & Greater Noida. Coordinated site delivery across active NCR sectors. Call +91 7988862842."
       },
       {
-        page: "Farukhnagar Hub (scaffolding-rental-farukhnagar.html)",
-        current: "Rent heavy-duty scaffolding and shuttering material in Farukhnagar, Gurugram. Direct yard rates, Cuplock systems, props & fast delivery across KMP corridor.",
-        proposed: "Scaffolding and shuttering material on rent in Farukhnagar & KMP logistics corridor. Direct yard rates on Cuplock, props, and MS plates. Call +91 7988862842."
+        page: "Farukhnagar Rental Guide (scaffolding-rental-farukhnagar.html)",
+        current: "Rent scaffolding and shuttering material in Farukhnagar, Gurugram. Cuplock systems, prop jacks, MS plates & coordinated delivery on the KMP corridor.",
+        proposed: "Scaffolding & shuttering material on rent for Farukhnagar & KMP corridor projects. Cuplock, prop jacks & MS plates. Call +91 7988862842."
       },
       {
-        page: "Sohna Hub (scaffolding-rental-sohna.html)",
-        current: "Rent heavy-duty scaffolding and shuttering plates in Sohna & South Gurugram. Direct delivery to IMT Sohna, residential townships, and NH-248A projects.",
-        proposed: "Scaffolding rental in Sohna & South Gurugram. Heavy-duty shuttering plates, Cuplock systems, and prop jacks for IMT Sohna and Roz-Ka-Meo projects. Call +91 7988862842."
+        page: "Sohna Rental Guide (scaffolding-rental-sohna.html)",
+        current: "Rent scaffolding and shuttering plates in Sohna & South Gurugram. Coordinated delivery to IMT Sohna, residential townships, and NH-248A projects.",
+        proposed: "Scaffolding rental for Sohna & South Gurugram sites. Shuttering plates, Cuplock systems & prop jacks delivered from main yards. Call +91 7988862842."
       },
       {
-        page: "Jaipur Hub (scaffolding-rental-jaipur.html)",
-        current: "Rent shuttering and scaffolding material in Jaipur. Heavy-duty MS plates, Cuplock towers, props & spans for Mansarovar, Sitapura & VKI projects.",
-        proposed: "Quality scaffolding and shuttering rentals in Jaipur. Prompt delivery across Mansarovar, Sitapura Industrial Area, and VKI corridor. Call +91 7988862842."
+        page: "Jaipur Rental Guide (scaffolding-rental-jaipur.html)",
+        current: "Rent shuttering and scaffolding material in Jaipur. MS plates, Cuplock towers, prop jacks & spans for Mansarovar, Sitapura & VKI corridor projects.",
+        proposed: "Scaffolding & shuttering rentals for Jaipur construction sites across Mansarovar, Sitapura & VKI corridor. Enquire on +91 7988862842."
       },
       {
-        page: "Kota Hub (scaffolding-rental-kota.html)",
-        current: "Rent shuttering and scaffolding material in Kota. Heavy-duty MS plates, Cuplock towers, props & spans for IP Industrial Area, Ranpur & Kunhari projects.",
-        proposed: "Reliable shuttering and scaffolding rentals in Kota. Prompt site transport to IP Industrial Area, Ranpur, and Landmark City. Call +91 7988862842."
+        page: "Kota Rental Guide (scaffolding-rental-kota.html)",
+        current: "Rent shuttering and scaffolding material in Kota. MS plates, Cuplock systems, prop jacks & spans for Indraprastha, Ranpur, and Kunhari sites.",
+        proposed: "Shuttering & scaffolding rentals for Kota projects across Indraprastha, Ranpur & Kunhari. Coordinated supply: +91 7988862842."
       }
     ];
     
@@ -220,7 +239,7 @@ app.get("/api/download-meta-pdf", (req, res) => {
     doc.fillColor("#9CA3AF")
        .font("Helvetica")
        .fontSize(8)
-       .text("Document generated automatically by AI Studio developer assistant.", { align: "center" });
+       .text("Document generated automatically by Kisan Shuttering SEO tool.", { align: "center" });
     
     doc.end();
   } catch (err) {
@@ -255,17 +274,17 @@ app.get("/robots.txt", (req, res) => {
   }
 });
 
-// Enforce canonical www host and single-hop /index.html -> / canonicalization
+// Enforce canonical apex host (kisanshuttering.com) and single-hop /index.html -> / canonicalization
 app.use((req, res, next) => {
   const hostHeader = (req.headers.host || "").split(":")[0].toLowerCase();
-  const isApex = hostHeader === "kisanshuttering.com";
+  const isWww = hostHeader === "www.kisanshuttering.com";
   const isIndexAlias = req.path === "/index.html" || req.path === "/index";
   const qsIndex = req.originalUrl.indexOf("?");
   const qs = qsIndex !== -1 ? req.originalUrl.slice(qsIndex) : "";
 
-  if (isApex) {
+  if (isWww) {
     const targetPath = isIndexAlias ? `/${qs}` : req.originalUrl;
-    return res.redirect(301, `https://www.kisanshuttering.com${targetPath}`);
+    return res.redirect(301, `https://kisanshuttering.com${targetPath}`);
   }
   if (isIndexAlias) {
     return res.redirect(301, `/${qs}`);
@@ -329,8 +348,11 @@ app.use((req, res, next) => {
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa"
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
+      appType: "spa",
     });
 
     app.get("/rental-scaffolding-in-palwal/", async (req, res, next) => {
@@ -435,7 +457,11 @@ async function startServer() {
 
   server.on("error", (err: any) => {
     console.error("Server listen error:", err);
+    process.exit(1);
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});
