@@ -38,6 +38,13 @@ jobs:
       - name: Build Production Bundle
         run: npm run build
 
+      - name: Ensure shared stylesheet is deployed
+        run: |
+          test -s style.css
+          mkdir -p dist
+          cp style.css dist/style.css
+          test -s dist/style.css
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
